@@ -16,7 +16,7 @@ UsersRouter.post("/account", async (req, res, next) => {
   }
 });
 
-// Sign in
+// Login
 UsersRouter.post("/session", async (req, res, next) => {
   try {
     const { email, password } = req.body;
