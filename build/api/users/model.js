@@ -19,7 +19,8 @@ const UsersSchema = new Schema({
     name: { type: String, required: true },
     email: { type: String, required: true },
     password: { type: String, required: true },
-    avatar: { type: String, required: true },
+    avatar: { type: String, required: true, default: " " },
+    refreshToken: { type: String },
 });
 UsersSchema.pre("save", function () {
     return __awaiter(this, void 0, void 0, function* () {
@@ -28,6 +29,16 @@ UsersSchema.pre("save", function () {
             const password = newUser.password;
             const hashedPW = yield bcrypt_1.default.hash(password, 11);
             newUser.password = hashedPW;
+        }
+    });
+});
+UsersSchema.pre("findOneAndUpdate", function () {
+    return __awaiter(this, void 0, void 0, function* () {
+        const update = this.getUpdate();
+        if (update.password) {
+            const password = update.password;
+            const hashedPW = yield bcrypt_1.default.hash(password, 11);
+            update.password = hashedPW;
         }
     });
 });
@@ -40,4 +51,18 @@ UsersSchema.methods.toJSON = function () {
     delete currentUser.__v;
     return currentUser;
 };
+UsersSchema.static("checkCredentials", function (email, plainPW) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const user = yield this.findOne({ email });
+        if (user) {
+            const passwordMatch = yield bcrypt_1.default.compare(plainPW, user.password);
+            if (passwordMatch)
+                return user;
+            else
+                return null;
+        }
+        else
+            return null;
+    });
+});
 exports.default = model("user", UsersSchema);

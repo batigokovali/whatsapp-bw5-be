@@ -47,3 +47,8 @@ export const verifyRefreshToken = (token: string): Promise<TokenPayload> =>
       else resolve(payload as TokenPayload);
     });
   });
+
+interface ITokenPair {
+  accessToken: string;
+  refreshToken: string;
+}

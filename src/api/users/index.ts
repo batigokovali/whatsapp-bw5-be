@@ -34,6 +34,22 @@ UsersRouter.post("/session", async (req, res, next) => {
   }
 });
 
+// Log out
+UsersRouter.delete(
+  "/session",
+  JWTTokenAuth,
+  async (req: UserRequest, res, next) => {
+    try {
+      const user = await UsersModel.findByIdAndUpdate(req.user!._id, {
+        refreshToken: "",
+      });
+      res.send(user);
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
 // Get all the users
 UsersRouter.get("/", JWTTokenAuth, async (req, res, next) => {
   try {
@@ -81,5 +97,14 @@ UsersRouter.get("/:userID", JWTTokenAuth, async (req, res, next) => {
     next(error);
   }
 });
+
+// Set an avatar image
+UsersRouter.post(
+  "/me/avatar",
+  JWTTokenAuth,
+  async (req: UserRequest, res, next) => {
+    const user = UsersModel.findById(req.user!._id);
+  }
+);
 
 export default UsersRouter;

@@ -13,8 +13,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
+const http_errors_1 = __importDefault(require("http-errors"));
 const model_1 = __importDefault(require("./model"));
+const tools_1 = require("../../lib/auth/tools");
+const jwt_1 = require("../../lib/auth/jwt");
 const UsersRouter = express_1.default.Router();
+// Sign up
 UsersRouter.post("/account", (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const newUser = new model_1.default(req.body);
@@ -24,5 +28,80 @@ UsersRouter.post("/account", (req, res, next) => __awaiter(void 0, void 0, void 
     catch (error) {
         next(error);
     }
+}));
+// Login
+UsersRouter.post("/session", (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { email, password } = req.body;
+        const user = yield model_1.default.checkCredentials(email, password);
+        if (user) {
+            const payload = { _id: user._id, email: user.email };
+            const accessToken = yield (0, tools_1.createAccessToken)(payload);
+            res.send({ accessToken });
+        }
+        else {
+            next((0, http_errors_1.default)(401, "Creditentials are not okay!"));
+        }
+    }
+    catch (error) {
+        next(error);
+    }
+}));
+// Log out
+UsersRouter.delete("/session", jwt_1.JWTTokenAuth, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const user = yield model_1.default.findByIdAndUpdate({ _id: req.user._id }, { refreshToken: "" });
+        res.send(user);
+    }
+    catch (error) {
+        next(error);
+    }
+}));
+// Get all the users
+UsersRouter.get("/", jwt_1.JWTTokenAuth, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const users = yield model_1.default.find();
+        res.send(users);
+    }
+    catch (error) {
+        next(error);
+    }
+}));
+// Get user's own info
+UsersRouter.get("/me", jwt_1.JWTTokenAuth, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const user = yield model_1.default.findById(req.user._id);
+        res.send(user);
+    }
+    catch (error) {
+        next(error);
+    }
+}));
+// Edit user's own info
+UsersRouter.put("/me", jwt_1.JWTTokenAuth, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const updatedUser = yield model_1.default.findOneAndUpdate({ _id: req.user._id }, req.body, { new: true, runValidators: true });
+        res.send(updatedUser);
+    }
+    catch (error) {
+        next(error);
+    }
+}));
+// Get users by ID
+UsersRouter.get("/:userID", jwt_1.JWTTokenAuth, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const user = yield model_1.default.findById(req.params.userID);
+        if (user)
+            res.send(user);
+        else
+            next((0, http_errors_1.default)(404, `User with id ${req.params.userID} not found!`));
+    }
+    catch (error) {
+        next(error);
+    }
+}));
+// Set an avatar image
+UsersRouter.post("/me/avatar", jwt_1.JWTTokenAuth, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const user = model_1.default.findById(req.user._id);
 }));
 exports.default = UsersRouter;
