@@ -15,7 +15,7 @@ export const JWTTokenAuth: RequestHandler = async (
     next(
       createHttpError(
         401,
-        "Please provide Bearer token in authorization header"
+        "Please provide a Bearer token in authorization header"
       )
     );
   } else {

@@ -2,6 +2,7 @@ import Express from "express";
 import createHttpError from "http-errors";
 import UsersModel from "./model";
 import { createAccessToken } from "../../lib/auth/tools";
+import { JWTTokenAuth, UserRequest } from "../../lib/auth/jwt";
 
 const UsersRouter = Express.Router();
 
@@ -33,6 +34,7 @@ UsersRouter.post("/session", async (req, res, next) => {
   }
 });
 
+// Get all the users
 UsersRouter.get("/", async (req, res, next) => {
   try {
     const users = await UsersModel.find();
@@ -42,8 +44,11 @@ UsersRouter.get("/", async (req, res, next) => {
   }
 });
 
-UsersRouter.get("/me", async (req, res, next) => {
+// Get user's own info
+UsersRouter.get("/me", JWTTokenAuth, async (req: UserRequest, res, next) => {
   try {
+    const user = await UsersModel.findById(req.user!._id);
+    res.send(user);
   } catch (error) {
     next(error);
   }
