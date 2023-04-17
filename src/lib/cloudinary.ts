@@ -6,7 +6,7 @@ export const avatarUploader = multer({
   storage: new CloudinaryStorage({
     cloudinary,
     params: {
-      // folder: "whatsapp/users/avatars",
+      //   folder: 'whatsapp/users/avatars',
     },
   }) as multer.StorageEngine,
 }).single("avatar");

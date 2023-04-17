@@ -40,10 +40,10 @@ UsersRouter.delete(
   JWTTokenAuth,
   async (req: UserRequest, res, next) => {
     try {
-      const user = await UsersModel.findByIdAndUpdate(req.user!._id, {
+      await UsersModel.findByIdAndUpdate(req.user!._id, {
         refreshToken: "",
       });
-      res.send(user);
+      res.send({ message: "Successfully logged out!" });
     } catch (error) {
       next(error);
     }
