@@ -1,9 +1,10 @@
-import { Model, Document } from "mongoose";
+import { Model, Document, ObjectId } from "mongoose";
 
 interface User {
   name: string;
   email: string;
   avatar?: string;
+  chats?:Array<ObjectId>
 }
 
 export interface UserDoc extends User, Document {}

@@ -9,6 +9,7 @@ const UsersSchema = new Schema({
   email: { type: String, required: true },
   password: { type: String, required: true },
   avatar: { type: String, required: true, default: " " },
+  chats: { type: Schema.Types.ObjectId, ref: 'chat' }
 });
 
 UsersSchema.pre("save", async function () {

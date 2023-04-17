@@ -11,6 +11,7 @@ import {
   unauthorizedHandler,
 } from "./errorHandlers";
 import UsersRouter from "./api/users";
+import chatRouter from "./api/chat";
 
 const expressServer = express();
 
@@ -23,6 +24,7 @@ expressServer.use(cors());
 expressServer.use(express.json());
 
 expressServer.use("/users", UsersRouter);
+expressServer.use("/users",chatRouter)
 
 expressServer.use(badRequestHandler);
 expressServer.use(unauthorizedHandler);

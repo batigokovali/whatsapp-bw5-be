@@ -17,9 +17,3 @@ export interface Message {
   };
   timestamp: number;
 }
-
-// export interface Contacts{
-//   name: string;
-//   email: string;
-//   avatar?: string;
-// }
