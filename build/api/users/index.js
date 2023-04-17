@@ -17,6 +17,7 @@ const http_errors_1 = __importDefault(require("http-errors"));
 const model_1 = __importDefault(require("./model"));
 const tools_1 = require("../../lib/auth/tools");
 const jwt_1 = require("../../lib/auth/jwt");
+const cloudinary_1 = require("../../lib/cloudinary");
 const UsersRouter = express_1.default.Router();
 // Sign up
 UsersRouter.post("/account", (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
@@ -50,8 +51,10 @@ UsersRouter.post("/session", (req, res, next) => __awaiter(void 0, void 0, void 
 // Log out
 UsersRouter.delete("/session", jwt_1.JWTTokenAuth, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const user = yield model_1.default.findByIdAndUpdate({ _id: req.user._id }, { refreshToken: "" });
-        res.send(user);
+        yield model_1.default.findByIdAndUpdate(req.user._id, {
+            refreshToken: "",
+        });
+        res.send({ message: "Successfully logged out!" });
     }
     catch (error) {
         next(error);
@@ -101,7 +104,11 @@ UsersRouter.get("/:userID", jwt_1.JWTTokenAuth, (req, res, next) => __awaiter(vo
     }
 }));
 // Set an avatar image
-UsersRouter.post("/me/avatar", jwt_1.JWTTokenAuth, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    const user = model_1.default.findById(req.user._id);
+UsersRouter.post("/me/avatar", cloudinary_1.avatarUploader, jwt_1.JWTTokenAuth, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a, _b;
+    yield model_1.default.findByIdAndUpdate(req.user._id, {
+        avatar: (_a = req.file) === null || _a === void 0 ? void 0 : _a.path,
+    });
+    res.send({ avatarURL: (_b = req.file) === null || _b === void 0 ? void 0 : _b.path });
 }));
 exports.default = UsersRouter;
