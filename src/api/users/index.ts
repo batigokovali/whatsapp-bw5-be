@@ -35,7 +35,7 @@ UsersRouter.post("/session", async (req, res, next) => {
 });
 
 // Get all the users
-UsersRouter.get("/", async (req, res, next) => {
+UsersRouter.get("/", JWTTokenAuth, async (req, res, next) => {
   try {
     const users = await UsersModel.find();
     res.send(users);
@@ -49,6 +49,20 @@ UsersRouter.get("/me", JWTTokenAuth, async (req: UserRequest, res, next) => {
   try {
     const user = await UsersModel.findById(req.user!._id);
     res.send(user);
+  } catch (error) {
+    next(error);
+  }
+});
+
+// Edit user's own info
+UsersRouter.put("/me", JWTTokenAuth, async (req: UserRequest, res, next) => {
+  try {
+    const updatedUser = await UsersModel.findOneAndUpdate(
+      { _id: req.user!._id },
+      req.body,
+      { new: true, runValidators: true }
+    );
+    res.send(updatedUser);
   } catch (error) {
     next(error);
   }
