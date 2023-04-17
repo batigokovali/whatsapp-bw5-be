@@ -10,6 +10,7 @@ import {
   notFoundHandler,
   unauthorizedHandler,
 } from "./errorHandlers";
+import UsersRouter from "./api/users";
 
 const expressServer = express();
 
@@ -21,7 +22,7 @@ socketioServer.on("connection", newConnectionHandler);
 expressServer.use(cors());
 expressServer.use(express.json());
 
-// routers will be here
+expressServer.use("/users", UsersRouter);
 
 expressServer.use(badRequestHandler);
 expressServer.use(unauthorizedHandler);
