@@ -3,6 +3,7 @@ import createHttpError from "http-errors";
 import UsersModel from "./model";
 import { createAccessToken } from "../../lib/auth/tools";
 import { JWTTokenAuth, UserRequest } from "../../lib/auth/jwt";
+import { avatarUploader } from "../../lib/cloudinary";
 
 const UsersRouter = Express.Router();
 
@@ -101,9 +102,13 @@ UsersRouter.get("/:userID", JWTTokenAuth, async (req, res, next) => {
 // Set an avatar image
 UsersRouter.post(
   "/me/avatar",
+  avatarUploader,
   JWTTokenAuth,
   async (req: UserRequest, res, next) => {
-    const user = UsersModel.findById(req.user!._id);
+    await UsersModel.findByIdAndUpdate(req.user!._id, {
+      avatar: req.file?.path,
+    });
+    res.send({ avatarURL: req.file?.path });
   }
 );
 
