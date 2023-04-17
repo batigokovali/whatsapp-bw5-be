@@ -21,6 +21,15 @@ UsersSchema.pre("save", async function () {
   }
 });
 
+UsersSchema.pre("findOneAndUpdate", async function () {
+  const update = this.getUpdate() as { password?: string };
+  if (update.password) {
+    const password = update.password;
+    const hashedPW = await bcrypt.hash(password, 11);
+    update.password = hashedPW;
+  }
+});
+
 UsersSchema.methods.toJSON = function () {
   const currentUserDoc = this;
   const currentUser = currentUserDoc.toObject();

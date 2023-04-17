@@ -2,6 +2,7 @@ import Express from "express";
 import createHttpError from "http-errors";
 import UsersModel from "./model";
 import { createAccessToken } from "../../lib/auth/tools";
+import { JWTTokenAuth, UserRequest } from "../../lib/auth/jwt";
 
 const UsersRouter = Express.Router();
 
@@ -16,7 +17,7 @@ UsersRouter.post("/account", async (req, res, next) => {
   }
 });
 
-// Sign in
+// Login
 UsersRouter.post("/session", async (req, res, next) => {
   try {
     const { email, password } = req.body;
@@ -33,7 +34,8 @@ UsersRouter.post("/session", async (req, res, next) => {
   }
 });
 
-UsersRouter.get("/", async (req, res, next) => {
+// Get all the users
+UsersRouter.get("/", JWTTokenAuth, async (req, res, next) => {
   try {
     const users = await UsersModel.find();
     res.send(users);
@@ -42,8 +44,39 @@ UsersRouter.get("/", async (req, res, next) => {
   }
 });
 
-UsersRouter.get("/me", async (req, res, next) => {
+// Get user's own info
+UsersRouter.get("/me", JWTTokenAuth, async (req: UserRequest, res, next) => {
   try {
+    const user = await UsersModel.findById(req.user!._id);
+    res.send(user);
+  } catch (error) {
+    next(error);
+  }
+});
+
+// Edit user's own info
+UsersRouter.put("/me", JWTTokenAuth, async (req: UserRequest, res, next) => {
+  try {
+    const updatedUser = await UsersModel.findOneAndUpdate(
+      { _id: req.user!._id },
+      req.body,
+      { new: true, runValidators: true }
+    );
+    res.send(updatedUser);
+  } catch (error) {
+    next(error);
+  }
+});
+
+// Get users by ID
+UsersRouter.get("/:userID", JWTTokenAuth, async (req, res, next) => {
+  try {
+    const user = await UsersModel.findById(req.params.userID);
+    if (user) res.send(user);
+    else
+      next(
+        createHttpError(404, `User with id ${req.params.userID} not found!`)
+      );
   } catch (error) {
     next(error);
   }
