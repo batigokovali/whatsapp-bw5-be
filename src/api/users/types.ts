@@ -4,6 +4,7 @@ interface User {
   name: string;
   email: string;
   avatar?: string;
+  refreshToken: string;
 }
 
 export interface UserDoc extends User, Document {}
