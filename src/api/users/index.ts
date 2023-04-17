@@ -68,4 +68,18 @@ UsersRouter.put("/me", JWTTokenAuth, async (req: UserRequest, res, next) => {
   }
 });
 
+// Get users by ID
+UsersRouter.get("/:userID", JWTTokenAuth, async (req, res, next) => {
+  try {
+    const user = await UsersModel.findById(req.params.userID);
+    if (user) res.send(user);
+    else
+      next(
+        createHttpError(404, `User with id ${req.params.userID} not found!`)
+      );
+  } catch (error) {
+    next(error);
+  }
+});
+
 export default UsersRouter;
