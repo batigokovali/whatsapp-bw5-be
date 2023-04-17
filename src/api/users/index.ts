@@ -14,4 +14,13 @@ UsersRouter.post("/account", async (req, res, next) => {
   }
 });
 
+UsersRouter.get("/", async (req, res, next) => {
+  try {
+    const users = await UsersModel.find();
+    res.send(users);
+  } catch (error) {
+    next(error);
+  }
+});
+
 export default UsersRouter;
