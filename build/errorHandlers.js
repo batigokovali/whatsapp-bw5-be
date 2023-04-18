@@ -43,6 +43,6 @@ const notFoundHandler = (err, req, res, next) => {
 exports.notFoundHandler = notFoundHandler;
 const genericErrorHandler = (err, req, res, next) => {
     console.log(err);
-    res.status(500).send({ message: "We gonna fix this ASAP!" });
+    res.status(500).send({ message: "Server error, we'll fix it ASAP!" });
 };
 exports.genericErrorHandler = genericErrorHandler;

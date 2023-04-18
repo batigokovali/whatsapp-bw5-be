@@ -3,6 +3,7 @@ import createHttpError from "http-errors";
 import UsersModel from "./model";
 import { createAccessToken } from "../../lib/auth/tools";
 import { JWTTokenAuth, UserRequest } from "../../lib/auth/jwt";
+import { avatarUploader } from "../../lib/cloudinary";
 
 const UsersRouter = Express.Router();
 
@@ -33,6 +34,22 @@ UsersRouter.post("/session", async (req, res, next) => {
     next(error);
   }
 });
+
+// Log out
+UsersRouter.delete(
+  "/session",
+  JWTTokenAuth,
+  async (req: UserRequest, res, next) => {
+    try {
+      await UsersModel.findByIdAndUpdate(req.user!._id, {
+        refreshToken: "",
+      });
+      res.send({ message: "Successfully logged out!" });
+    } catch (error) {
+      next(error);
+    }
+  }
+);
 
 // Get all the users
 UsersRouter.get("/", JWTTokenAuth, async (req, res, next) => {
@@ -81,5 +98,18 @@ UsersRouter.get("/:userID", JWTTokenAuth, async (req, res, next) => {
     next(error);
   }
 });
+
+// Set an avatar image
+UsersRouter.post(
+  "/me/avatar",
+  avatarUploader,
+  JWTTokenAuth,
+  async (req: UserRequest, res, next) => {
+    await UsersModel.findByIdAndUpdate(req.user!._id, {
+      avatar: req.file?.path,
+    });
+    res.send({ avatarURL: req.file?.path });
+  }
+);
 
 export default UsersRouter;
