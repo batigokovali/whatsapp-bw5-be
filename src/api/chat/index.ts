@@ -1,6 +1,6 @@
 import Express from "express";
 import createHttpError from "http-errors";
-import chatSchema  from "./model"
+import chatModel  from "./model"
 import UsersModel from "../users/model"
 
 const chatRouter=Express.Router()
@@ -9,15 +9,15 @@ const chatRouter=Express.Router()
 
 
 
-chatRouter.get("/:id/chats",async(req,res,next)=>{
+chatRouter.get("/:id/chats", async (req, res, next) => {
     try {
-        const oneUser = await UsersModel.findById(req.params.id)
-        if(oneUser)
-        res.send(oneUser.chats)
+      const chats = await chatModel.find(); // Find all chat documents
+      const members = chats.map(chat => chat.members); // Extract members from each chat document
+      res.send(chats)
     } catch (error) {
-        next(error)
+      next(error);
     }
-})
+  })
 
 
 chatRouter.put("/:id/chats/:userId",async(req,res,next)=>{

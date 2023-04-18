@@ -1,5 +1,7 @@
 import mongoose from "mongoose";
+import { chatDoc,chatModel } from "./types";
 
+import { Model } from "mongoose";
 const { Schema, model } = mongoose;
 
  const chatSchema= new Schema({
@@ -7,4 +9,8 @@ const { Schema, model } = mongoose;
     messages:[{type:mongoose.Types.ObjectId,required:false,ref:"message"}]
 })
 
-export default model ("chat", chatSchema);
+
+
+const chatModel: Model<chatDoc> = model<chatDoc>("chat", chatSchema);
+export default chatModel;
+
