@@ -14,6 +14,7 @@ const UsersSchema = new Schema({
     default: "https://static.thenounproject.com/png/5034901-200.png",
   },
   refreshToken: { type: String },
+  googleID: { type: String },
 });
 
 UsersSchema.pre("save", async function () {

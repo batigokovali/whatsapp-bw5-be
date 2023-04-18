@@ -11,11 +11,15 @@ import {
   unauthorizedHandler,
 } from "./errorHandlers";
 import UsersRouter from "./api/users";
+import passport from "passport";
+import googleStrategy from "./lib/auth/googleOauth";
 
 const expressServer = express();
 
 const httpServer = createServer(expressServer);
 const socketioServer = new Server(httpServer);
+
+passport.use("google", googleStrategy);
 
 socketioServer.on("connection", newConnectionHandler);
 
