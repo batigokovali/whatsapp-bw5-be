@@ -1,7 +1,7 @@
 import express from "express";
 import { Server } from "socket.io";
 import { createServer } from "http";
-import cors from "cors";
+import cors, { CorsOptions } from "cors";
 import { newConnectionHandler } from "./socket/index";
 import {
   badRequestHandler,
@@ -13,6 +13,7 @@ import {
 import UsersRouter from "./api/users";
 import passport from "passport";
 import googleStrategy from "./lib/auth/googleOauth";
+import createHttpError from "http-errors";
 
 const expressServer = express();
 
@@ -23,7 +24,20 @@ passport.use("google", googleStrategy);
 
 socketioServer.on("connection", newConnectionHandler);
 
-expressServer.use(cors());
+const whiteList = [process.env.FE_DEV_URL, process.env.FE_PROD_URL];
+const corsOptions: CorsOptions = {
+  origin: (currentOrigin, corsNext) => {
+    if (!currentOrigin || whiteList.includes(currentOrigin)) {
+      corsNext(null, true);
+    } else {
+      corsNext(
+        createHttpError(400, `This origin is not allowed! ${currentOrigin}`)
+      );
+    }
+  },
+};
+
+expressServer.use(cors(corsOptions));
 expressServer.use(express.json());
 
 expressServer.use("/users", UsersRouter);
