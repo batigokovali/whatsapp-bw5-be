@@ -29,24 +29,24 @@ chatRouter.get("/", JWTTokenAuth, async (req: UserRequest, res, next) => {
   });
   
 
-  chatRouter.post("/",JWTTokenAuth, async (req: UserRequest, res, next) => {
-    try {
-        const chats = await chatModel.find();
-        const members = chats.map(chat => chat.members);
-        const currentUser = req.user; 
-        // const myChats=members.filter(a=>a!==user)
-        const recipient=req.body.recipient
-        const chat=members.filter(a=>a!==recipient)
-       if(chat){
-        res.send("In Contact")
-       }else{
-
-       }
+  // chatRouter.post("/",JWTTokenAuth, async (req: UserRequest, res, next) => {
+  //   try {
+  //       const chats = await chatModel.find();
+  //       const members = chats.map(chat => chat.members);
+  //       const currentUser = req.user; 
+  //       // const myChats=members.filter(a=>a!==currentUser)
+  //       const recipient=req.body.recipient
+  //       const chat=members.filter(a=>a!==recipient)
+  //      if(chat){
+  //       res.send("In Contact")
+  //      }else{
+       
+  //      }
    
-    } catch (error) {
-      next(error);
-    }
-  })
+  //   } catch (error) {
+  //     next(error);
+  //   }
+  // })
 
 
 chatRouter.post("/", JWTTokenAuth, async (req: UserRequest, res, next) => {
