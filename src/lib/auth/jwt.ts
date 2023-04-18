@@ -6,11 +6,7 @@ export interface UserRequest extends Request {
   user?: TokenPayload;
 }
 
-export const JWTTokenAuth: RequestHandler = async (
-  req: UserRequest,
-  res,
-  next
-) => {
+export const JWTTokenAuth: RequestHandler = async (req, res, next) => {
   if (!req.headers.authorization) {
     next(
       createHttpError(
@@ -22,7 +18,6 @@ export const JWTTokenAuth: RequestHandler = async (
     const accessToken = req.headers.authorization.replace("Bearer ", "");
     try {
       const payload = await verifyAccessToken(accessToken);
-
       req.user = { _id: payload._id, email: payload.email };
       next();
     } catch (error) {

@@ -17,3 +17,6 @@ export interface Message {
   };
   timestamp: number;
 }
+export interface googleRedirectRequest {
+  accessToken: string;
+}
