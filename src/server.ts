@@ -2,7 +2,8 @@ import express from "express";
 import { Server, Socket } from "socket.io";
 import { createServer } from "http";
 import cors from "cors";
-import { newConnectionHandler } from "./socket/index";
+import {  newConnectionHandler } from "./socket/index";
+import {  authMiddleware } from "./socket/index";
 import {
   badRequestHandler,
   forbiddenHandler,
@@ -26,30 +27,21 @@ const socketioServer = new Server(httpServer);
 
 socketioServer.on("connect", newConnectionHandler);
 
-// const socket = socketioServer({
-//   auth: {
-//     token: "abc"
-//   }
+socketioServer.use(authMiddleware)
+
+// socketioServer.use((socket, next) => {
+//  if(socket.handshake.auth.token){
+// // socket.name=getUsernameFromToken(socket.handshake.auth.token)
+//  }else{
+//   next(new Error("Please send token"))
+//  }
+  
 // })
 
-
-const getUsernameFromToken=(token: any)=>{
-return token
-}
-
-socketioServer.use((socket, next) => {
- if(socket.handshake.auth.token){
-// socket.name=getUsernameFromToken(socket.handshake.auth.token)
- }else{
-  next(new Error("Please send token"))
- }
-  
-})
-
-socketioServer.on("connection", socket => {
-  console.log(socket);
-  require("./controllers/socket-io/socket-io-controller")(socket, socketioServer);
-})
+// socketioServer.on("connection", socket => {
+//   console.log(socket);
+//   require("./controllers/socket-io/socket-io-controller")(socket, socketioServer);
+// })
 
 
 
@@ -58,11 +50,11 @@ expressServer.use(express.json());
 
 
 
-const userIo=socketioServer.of("/user")
+// const userIo=socketioServer.of("/user")
 
-userIo.on("connect",socket=>{
-  console.log(socket.id,"connected to namespace")
-})
+// userIo.on("connect",socket=>{
+//   console.log(socket.id,"connected to namespace")
+// })
 
 
 
