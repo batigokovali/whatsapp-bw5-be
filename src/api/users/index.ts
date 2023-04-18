@@ -1,7 +1,7 @@
 import Express from "express";
 import createHttpError from "http-errors";
 import UsersModel from "./model";
-import { createAccessToken } from "../../lib/auth/tools";
+import { createAccessToken, createRefreshToken } from "../../lib/auth/tools";
 import { JWTTokenAuth, UserRequest } from "../../lib/auth/jwt";
 import { avatarUploader } from "../../lib/cloudinary";
 import passport from "passport";
@@ -15,8 +15,12 @@ UsersRouter.post("/account", async (req, res, next) => {
     const emailInUse = await UsersModel.findOne({ email: req.body.email });
     if (!emailInUse) {
       const newUser = new UsersModel(req.body);
-      const { _id } = await newUser.save();
-      res.status(201).send({ _id });
+      const user = await newUser.save();
+      const payload = { _id: user._id, email: user.email };
+      const accessToken = await createAccessToken(payload);
+      const refreshToken = await createRefreshToken(payload);
+      await UsersModel.findByIdAndUpdate(user._id, { refreshToken });
+      res.status(201).send({ user, accessToken, refreshToken });
     } else {
       res
         .status(409)
@@ -41,7 +45,8 @@ UsersRouter.post("/session", async (req, res, next) => {
     if (user) {
       const payload = { _id: user._id, email: user.email };
       const accessToken = await createAccessToken(payload);
-      res.send({ accessToken });
+      const refreshToken = await createRefreshToken(payload);
+      res.send({ accessToken, refreshToken });
     } else {
       next(createHttpError(401, "Creditentials are not okay!"));
     }
