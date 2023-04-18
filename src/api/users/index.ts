@@ -36,20 +36,16 @@ UsersRouter.post("/session", async (req, res, next) => {
 });
 
 // Log out
-UsersRouter.delete(
-  "/session",
-  JWTTokenAuth,
-  async (req: UserRequest, res, next) => {
-    try {
-      await UsersModel.findByIdAndUpdate(req.user!._id, {
-        refreshToken: "",
-      });
-      res.send({ message: "Successfully logged out!" });
-    } catch (error) {
-      next(error);
-    }
+UsersRouter.delete("/session", JWTTokenAuth, async (req, res, next) => {
+  try {
+    await UsersModel.findByIdAndUpdate((req as UserRequest).user!._id, {
+      refreshToken: "",
+    });
+    res.send({ message: "Successfully logged out!" });
+  } catch (error) {
+    next(error);
   }
-);
+});
 
 // Get all the users
 UsersRouter.get("/", JWTTokenAuth, async (req, res, next) => {
@@ -62,9 +58,9 @@ UsersRouter.get("/", JWTTokenAuth, async (req, res, next) => {
 });
 
 // Get user's own info
-UsersRouter.get("/me", JWTTokenAuth, async (req: UserRequest, res, next) => {
+UsersRouter.get("/me", JWTTokenAuth, async (req, res, next) => {
   try {
-    const user = await UsersModel.findById(req.user!._id);
+    const user = await UsersModel.findById((req as UserRequest).user!._id);
     res.send(user);
   } catch (error) {
     next(error);
@@ -72,10 +68,10 @@ UsersRouter.get("/me", JWTTokenAuth, async (req: UserRequest, res, next) => {
 });
 
 // Edit user's own info
-UsersRouter.put("/me", JWTTokenAuth, async (req: UserRequest, res, next) => {
+UsersRouter.put("/me", JWTTokenAuth, async (req, res, next) => {
   try {
     const updatedUser = await UsersModel.findOneAndUpdate(
-      { _id: req.user!._id },
+      { _id: (req as UserRequest).user!._id },
       req.body,
       { new: true, runValidators: true }
     );
@@ -99,13 +95,13 @@ UsersRouter.get("/:userID", JWTTokenAuth, async (req, res, next) => {
   }
 });
 
-// Set an avatar image
+// Set an avatar
 UsersRouter.post(
   "/me/avatar",
   avatarUploader,
   JWTTokenAuth,
-  async (req: UserRequest, res, next) => {
-    await UsersModel.findByIdAndUpdate(req.user!._id, {
+  async (req, res, next) => {
+    await UsersModel.findByIdAndUpdate((req as UserRequest).user!._id, {
       avatar: req.file?.path,
     });
     res.send({ avatarURL: req.file?.path });

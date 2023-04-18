@@ -6,11 +6,7 @@ export interface UserRequest extends Request {
   user?: TokenPayload;
 }
 
-export const JWTTokenAuth: RequestHandler = async (
-  req: UserRequest,
-  res,
-  next
-) => {
+export const JWTTokenAuth: RequestHandler = async (req, res, next) => {
   if (!req.headers.authorization) {
     next(
       createHttpError(
