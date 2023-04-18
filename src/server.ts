@@ -16,6 +16,8 @@ import { instrument } from "@socket.io/admin-ui";
 import socketioJwt, { authorize } from "socketio-jwt"; 
 import jwt from "jsonwebtoken";
 import { JWTTokenAuth } from "./lib/auth/jwt";
+import messageModel from "./api/messages/model";
+import messageRouter from "./api/messages";
 
 const expressServer = express();
 
@@ -67,7 +69,8 @@ userIo.on("connect",socket=>{
 
 
 expressServer.use("/users", UsersRouter);
-expressServer.use("/users",chatRouter)
+expressServer.use("/chats",chatRouter)
+expressServer.use("/users",messageRouter)
 
 expressServer.use(badRequestHandler);
 expressServer.use(unauthorizedHandler);
