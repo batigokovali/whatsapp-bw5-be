@@ -46,7 +46,7 @@ UsersRouter.post("/session", async (req, res, next) => {
       const payload = { _id: user._id, email: user.email };
       const accessToken = await createAccessToken(payload);
       const refreshToken = await createRefreshToken(payload);
-      res.send({ accessToken, refreshToken });
+      res.send({ user, accessToken, refreshToken });
     } else {
       next(createHttpError(401, "Creditentials are not okay!"));
     }
