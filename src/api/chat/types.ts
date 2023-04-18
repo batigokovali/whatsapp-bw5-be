@@ -6,8 +6,10 @@ import {User,Message} from "../../types"
     messages: Message[];
   }
 
+
+
   export interface chatDoc extends Chat,Document{}
 
   export interface chatModel extends Model<chatDoc>{
-    
+
   }

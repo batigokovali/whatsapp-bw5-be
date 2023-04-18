@@ -13,12 +13,14 @@ import {
 import UsersRouter from "./api/users";
 import chatRouter from "./api/chat";
 import { instrument } from "@socket.io/admin-ui";
-import { JWTTokenAuth } from "./lib/auth/jwt";
+import socketioJwt from "socketio-jwt"; 
+import jwt from "jsonwebtoken";
 import { authorize } from "socketio-jwt";
 const expressServer = express();
 
 const httpServer = createServer(expressServer);
 const socketioServer = new Server(httpServer);
+
 
 socketioServer.on("connect", newConnectionHandler);
 
@@ -26,19 +28,15 @@ socketioServer.on("connect", newConnectionHandler);
 expressServer.use(cors());
 expressServer.use(express.json());
 
+
+
 const userIo=socketioServer.of("/user")
 userIo.on("connect",socket=>{
   console.log(socket.id,"connected to namespace")
 })
 
 
-// userIo.use((socket,next)=>{
-//  if(socket.handshake.auth.token){
-  
-//  }else{
-//   next(new Error("Please send token"))
-//  }
-// })
+
 
 expressServer.use("/users", UsersRouter);
 expressServer.use("/users",chatRouter)

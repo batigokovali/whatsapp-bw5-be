@@ -2,9 +2,11 @@ import mongoose from "mongoose";
 import { chatDoc,chatModel } from "./types";
 
 import { Model } from "mongoose";
+import { Chat } from "../../types";
+
 const { Schema, model } = mongoose;
 
- const chatSchema= new Schema({
+ const chatSchema= new Schema<Chat>({
     members:[{type:mongoose.Types.ObjectId,required:false,ref:"user"}],
     messages:[{type:mongoose.Types.ObjectId,required:false,ref:"message"}]
 })
