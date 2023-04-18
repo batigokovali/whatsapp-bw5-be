@@ -1,5 +1,5 @@
 import express from "express";
-import { Server } from "socket.io";
+import { Server, Socket } from "socket.io";
 import { createServer } from "http";
 import cors from "cors";
 import { newConnectionHandler } from "./socket/index";
@@ -13,16 +13,42 @@ import {
 import UsersRouter from "./api/users";
 import chatRouter from "./api/chat";
 import { instrument } from "@socket.io/admin-ui";
-import socketioJwt from "socketio-jwt"; 
+import socketioJwt, { authorize } from "socketio-jwt"; 
 import jwt from "jsonwebtoken";
-import { authorize } from "socketio-jwt";
+import { JWTTokenAuth } from "./lib/auth/jwt";
+
 const expressServer = express();
 
 const httpServer = createServer(expressServer);
 const socketioServer = new Server(httpServer);
 
-
 socketioServer.on("connect", newConnectionHandler);
+
+// const socket = socketioServer({
+//   auth: {
+//     token: "abc"
+//   }
+// })
+
+
+const getUsernameFromToken=(token: any)=>{
+return token
+}
+
+socketioServer.use((socket, next) => {
+ if(socket.handshake.auth.token){
+// socket.name=getUsernameFromToken(socket.handshake.auth.token)
+ }else{
+  next(new Error("Please send token"))
+ }
+  
+})
+
+socketioServer.on("connection", socket => {
+  console.log(socket);
+  require("./controllers/socket-io/socket-io-controller")(socket, socketioServer);
+})
+
 
 
 expressServer.use(cors());
@@ -31,9 +57,11 @@ expressServer.use(express.json());
 
 
 const userIo=socketioServer.of("/user")
+
 userIo.on("connect",socket=>{
   console.log(socket.id,"connected to namespace")
 })
+
 
 
 
