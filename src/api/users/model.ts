@@ -19,7 +19,7 @@ const UsersSchema = new Schema({
 
 UsersSchema.pre("save", async function () {
   const newUser = this;
-  if (newUser.isModified("password")) {
+  if (newUser.password && newUser.isModified("password")) {
     const password = newUser.password;
     const hashedPW = await bcrypt.hash(password, 11);
     newUser.password = hashedPW;

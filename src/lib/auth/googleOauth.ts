@@ -27,6 +27,7 @@ const googleStrategy = new GoogleStrategy(
           email,
           googleId: sub,
           avatar: picture,
+          password: Math.random().toString(36).slice(-10), // generating a random password for those who sign up with Google
         });
         const createdUser = await newUser.save();
         const accessToken = await createAccessToken({

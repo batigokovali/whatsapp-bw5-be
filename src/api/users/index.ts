@@ -4,15 +4,30 @@ import UsersModel from "./model";
 import { createAccessToken } from "../../lib/auth/tools";
 import { JWTTokenAuth, UserRequest } from "../../lib/auth/jwt";
 import { avatarUploader } from "../../lib/cloudinary";
+import passport from "passport";
+import { googleRedirectRequest } from "../../types";
 
 const UsersRouter = Express.Router();
 
 // Sign up
 UsersRouter.post("/account", async (req, res, next) => {
   try {
-    const newUser = new UsersModel(req.body);
-    const { _id } = await newUser.save();
-    res.status(201).send({ _id });
+    const emailInUse = await UsersModel.findOne({ email: req.body.email });
+    if (!emailInUse) {
+      const newUser = new UsersModel(req.body);
+      const { _id } = await newUser.save();
+      res.status(201).send({ _id });
+    } else {
+      res
+        .status(409)
+        // 409 Conflict ->
+        // https://datatracker.ietf.org/doc/html/draft-ietf-httpbis-p2-semantics-18#section-7.4.10
+        // The request could not be completed due to a conflict with the current
+        // state of the resource.  This code is only allowed in situations where
+        // it is expected that the user might be able to resolve the conflict
+        // and resubmit the request.
+        .send({ message: `This email '${req.body.email}' is already in use!` });
+    }
   } catch (error) {
     next(error);
   }
@@ -34,6 +49,27 @@ UsersRouter.post("/session", async (req, res, next) => {
     next(error);
   }
 });
+
+// Log in with Google
+UsersRouter.get(
+  "/session/googleRedirect",
+  passport.authenticate("google", {
+    session: false,
+    scope: ["profile", "email"],
+  }),
+  async (req, res, next) => {
+    try {
+      res.redirect(
+        `${process.env.FE_DEV_URL}?accessToken=${
+          (req.user as googleRedirectRequest).accessToken
+        }`
+      );
+      console.log(req.user);
+    } catch (error) {
+      next(error);
+    }
+  }
+);
 
 // Log out
 UsersRouter.delete("/session", JWTTokenAuth, async (req, res, next) => {

@@ -18,7 +18,6 @@ export const JWTTokenAuth: RequestHandler = async (req, res, next) => {
     const accessToken = req.headers.authorization.replace("Bearer ", "");
     try {
       const payload = await verifyAccessToken(accessToken);
-
       req.user = { _id: payload._id, email: payload.email };
       next();
     } catch (error) {
