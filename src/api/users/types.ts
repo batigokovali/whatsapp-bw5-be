@@ -1,4 +1,4 @@
-import { Model, Document } from "mongoose";
+import { Model, Document, ObjectId } from "mongoose";
 
 interface User {
   name: string;
