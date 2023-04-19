@@ -9,7 +9,7 @@ export const messageSchema = new Schema(
     {
       sender: { type: Schema.Types.ObjectId, ref: "user" },
       content: {
-        text: { type: String, required: true },
+        text: { type: String },
         media: { type: String },
       },
     },

@@ -7,6 +7,7 @@ import { UserRequest } from "../../lib/auth/jwt";
 import { Server, Socket } from "socket.io";
 import { isObjectIdOrHexString, isValidObjectId, ObjectId } from "mongoose";
 import messageModel from "../messages/model";
+import { imageUploader } from "../../lib/cloudinary";
 
 const chatRouter=Express.Router()
 
@@ -16,7 +17,7 @@ const io = new Server();
 
 chatRouter.get("/", JWTTokenAuth, async (req, res, next) => {
     try {
-     const currentUser= await UsersModel.findById((req as UserRequest).user!._id)
+     const currentUser= (req as UserRequest).user!._id
     
       const chats = await chatModel.find({ members: currentUser }).populate(
         "members",
@@ -35,7 +36,7 @@ chatRouter.get("/", JWTTokenAuth, async (req, res, next) => {
 chatRouter.post("/", JWTTokenAuth, async (req, res, next) => {
     try {
 
-      const sender= await UsersModel.findById((req as UserRequest).user!._id)
+      const sender= (req as UserRequest).user!._id
 
 
       const recipient=req.body.recipient
@@ -43,6 +44,7 @@ chatRouter.post("/", JWTTokenAuth, async (req, res, next) => {
         members:[sender,recipient]
       })
       if(exists){
+        console.log((req as UserRequest).user!._id)
         res.status(200).send(exists)
       }else{
        const newChat=await chatModel.create({
@@ -60,7 +62,7 @@ chatRouter.post("/", JWTTokenAuth, async (req, res, next) => {
   chatRouter.get("/:id", JWTTokenAuth, async (req, res, next) => {
     try {
       const chatId = req.params.id;
-  
+      
       const chat = await chatModel.findOne({ _id: chatId }).populate(
         "members",
         "name email avatar"
@@ -76,11 +78,10 @@ chatRouter.post("/", JWTTokenAuth, async (req, res, next) => {
   })
 
 
-  chatRouter.post("/:id", JWTTokenAuth, async (req, res, next)=>{
+  chatRouter.post("/:id",imageUploader, JWTTokenAuth, async (req, res, next)=>{
     try {
-      const sender= await UsersModel.findById((req as UserRequest).user!._id)
-
-      const chatId = req.params.id;
+      const sender= (req as UserRequest).user!._id
+            const chatId = req.params.id;
       const chat = await chatModel.findById(chatId)
       
       if(!chat){
@@ -89,11 +90,12 @@ chatRouter.post("/", JWTTokenAuth, async (req, res, next) => {
        const newMessage=await messageModel.create({
         sender:sender,
         content:{
-         text:req.body.message
+         text:req.body.message,
+         media:req.file?.path
         }
-
        })
-       
+       chat.messages.push(newMessage)
+       chat.save()
        res.send(chat)
        console.log(newMessage)
       }
