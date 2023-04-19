@@ -1,6 +1,7 @@
 import express from "express";
 import { Server, Socket } from "socket.io";
 import { createServer } from "http";
+// import {  authMiddleware } from "./socket/index";
 import cors, { CorsOptions } from "cors";
 import { newConnectionHandler } from "./socket/index";
 import { authMiddleware } from "./socket/index";
@@ -28,9 +29,28 @@ const expressServer = express();
 const httpServer = createServer(expressServer);
 const socketioServer = new Server(httpServer);
 
+socketioServer.on("connect", newConnectionHandler);
+
+// socketioServer.use(authMiddleware)
+
+// socketioServer.use((socket, next) => {
+//  if(socket.handshake.auth.token){
+// // socket.name=getUsernameFromToken(socket.handshake.auth.token)
+//  }else{
+//   next(new Error("Please send token"))
+//  }
+  
+// })
+
+// socketioServer.on("connection", socket => {
+//   console.log(socket);
+//   require("./controllers/socket-io/socket-io-controller")(socket, socketioServer);
+// })
+
+
 passport.use("google", googleStrategy);
 
-socketioServer.on("connection", newConnectionHandler)
+socketioServer.on("connection", newConnectionHandler);
 
 const whiteList = [process.env.FE_DEV_URL, process.env.FE_PROD_URL];
 const corsOptions: CorsOptions = {

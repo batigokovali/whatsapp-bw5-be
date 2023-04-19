@@ -5,15 +5,18 @@ import { messageDoc,messageModel,Message } from "./types";
 import { Model } from "mongoose";
 const { Schema, model } = mongoose;
 
-const messageSchema= new Schema<Message>({
-    sender:{type:mongoose.Types.ObjectId,required:true,ref:"user"},
-    content:{
-        text:{type:String},
-        media:{type:String}
-
+export const messageSchema = new Schema(
+    {
+      sender: { type: Schema.Types.ObjectId, ref: "user" },
+      content: {
+        text: { type: String, required: true },
+        media: { type: String },
+      },
     },
-    timestamp:{type:Number}
-})
+    {
+      timestamps: true,
+    }
+    );
 
 const messageModel: Model<messageDoc> = model<messageDoc>("message", messageSchema);
 export default messageModel;

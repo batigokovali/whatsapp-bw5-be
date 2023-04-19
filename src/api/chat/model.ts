@@ -3,12 +3,13 @@ import { chatDoc,chatModel } from "./types";
 
 import { Model } from "mongoose";
 import { Chat } from "../../types";
+import { messageSchema } from "../messages/model";
 
 const { Schema, model } = mongoose;
 
  const chatSchema= new Schema({
     members:[{type:mongoose.Types.ObjectId,required:false,ref:"user"}],
-    messages:[{type:mongoose.Types.ObjectId,required:false,ref:"message"}]
+    messages:[messageSchema]
 })
 
 

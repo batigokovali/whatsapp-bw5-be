@@ -8,28 +8,30 @@ import { JWTTokenAuth } from "../lib/auth/jwt";
 
 let onlineUserList: User[] = [];
 
-export const authMiddleware = socketioJwt.authorize({
-  secret: process.env.JWT_SECRET as string,
-  handshake: true,
-  decodedPropertyName: "accessToken",
-})
+//  export const authMiddleware = socketioJwt.authorize({
+//   secret: process.env.JWT_SECRET as string, 
+//   handshake: true,
+//   decodedPropertyName: "accessToken", 
+// })
 
 export const newConnectionHandler = (socket: Socket) => {
 
   console.log(`New userJoined their id is ${socket.id}`);
   socket.emit("Welcome", socket.id);
 
-  const verifyJwt = (token: string): Promise<any> => {
-    return new Promise((resolve, reject) => {
-      jwt.verify(token, process.env.JWT_SECRET as string, (err, decoded) => {
-        if (err) {
-          reject(err);
-        } else {
-          resolve(decoded);
-        }
-      });
-    });
-  };
+  // const verifyJwt = (token: string): Promise<any> => {
+  //   return new Promise((resolve, reject) => {
+  //     jwt.verify(token, process.env.JWT_SECRET as string, (err, decoded) => { 
+  //       if (err) {
+  //         reject(err);
+  //       } else {
+  //         resolve(decoded);
+  //       }
+  //     });
+  //   });
+  // };
+
+
 
   socket.on("outgoing-msg", ({ recipients, message }) => {
     if (Array.isArray(recipients)) {
