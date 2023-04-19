@@ -3,7 +3,7 @@ import { Server, Socket } from "socket.io";
 import { createServer } from "http";
 import cors from "cors";
 import {  newConnectionHandler } from "./socket/index";
-import {  authMiddleware } from "./socket/index";
+// import {  authMiddleware } from "./socket/index";
 import {
   badRequestHandler,
   forbiddenHandler,
@@ -27,7 +27,7 @@ const socketioServer = new Server(httpServer);
 
 socketioServer.on("connect", newConnectionHandler);
 
-socketioServer.use(authMiddleware)
+// socketioServer.use(authMiddleware)
 
 // socketioServer.use((socket, next) => {
 //  if(socket.handshake.auth.token){

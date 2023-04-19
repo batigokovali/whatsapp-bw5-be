@@ -5,6 +5,8 @@ import UsersModel from "../users/model"
 import { JWTTokenAuth } from "../../lib/auth/jwt";
 import { UserRequest } from "../../lib/auth/jwt";
 import { Server, Socket } from "socket.io";
+import { isObjectIdOrHexString, isValidObjectId, ObjectId } from "mongoose";
+import messageModel from "../messages/model";
 
 const chatRouter=Express.Router()
 
@@ -14,14 +16,15 @@ const io = new Server();
 
 chatRouter.get("/", JWTTokenAuth, async (req: UserRequest, res, next) => {
     try {
-      const chats = await chatModel.find();
-      const members = chats.map(chat => chat.members);
-      const currentUser = req.user; 
-    //   const myChats = members.filter(member => !member.equals(currentUser))
-    // const myChats = members.filter(member => member.toString() !== currentUser._id.toString());
-    const myChats = members.filter(member => member.toString() !== (currentUser?.toString() ?? ''));
-      if (currentUser) {
-        res.status(200).send();
+      const currentUser = req.user?._id; 
+      const chats = await chatModel.find({ members: currentUser }).populate(
+        "members",
+        "name email avatar"
+      );
+      if (chats) {
+        res.status(200).send(chats);
+      }else{
+        res.send("Invalid user")
       }
     } catch (error) {
       next(error);
@@ -51,35 +54,67 @@ chatRouter.get("/", JWTTokenAuth, async (req: UserRequest, res, next) => {
 
 chatRouter.post("/", JWTTokenAuth, async (req: UserRequest, res, next) => {
     try {
-
-      const { userId, roomName } = req.body;
-  
-    const user=req.user
+      const sender=req.user?._id
+      const recipient=req.body.recipient
+      const exists= await chatModel.findOne({
+        members:[sender,recipient]
+      })
+      if(exists){
+        res.status(200).send(exists)
+      }else{
+       const newChat=await chatModel.create({
+        members: [sender, recipient],
+        messages: []
+       })
+       res.status(201).send(newChat);
      
-      const userSocket = io.sockets.sockets.get(userId);
-  
-
-      if (!userSocket) {
-        return res.status(400).send("User is not connected");
       }
-  
-      userSocket.join(roomName);
-      
-      return res.status(200).send("Room created successfully");
     } catch (error) {
-      next(error);
+      next(error)
     }
   });
 
-  chatRouter.get("/:id",JWTTokenAuth, async (req: UserRequest, res, next) => {
+  chatRouter.get("/:id", JWTTokenAuth, async (req, res, next) => {
     try {
-      const chats= await chatModel.find()
-      const user=req.user
-
-      if(chats)
-      res.status(200).send(chats)
+      const chatId = req.params.id;
+  
+      const chat = await chatModel.findOne({ _id: chatId }).populate(
+        "members",
+        "name email avatar"
+      );
+      if (!chat) {
+        return next(createHttpError(404, "Chat not found"));
+      }
+  
+      res.status(200).send(chat);
     } catch (error) {
       next(error);
+    }
+  })
+
+
+  chatRouter.post("/:id", JWTTokenAuth, async (req: UserRequest, res, next)=>{
+    try {
+      const sender=req.user?._id
+      const chatId = req.params.id;
+      const chat = await chatModel.findById(chatId)
+      
+      if(!chat){
+        return next(createHttpError(404, "Chat not found"));
+      }else{
+       const newMessage=await messageModel.create({
+        sender:sender,
+        content:{
+         text:req.body.message
+        }
+
+       })
+       
+       res.send(chat)
+       console.log(newMessage)
+      }
+    } catch (error) {
+      next(error)
     }
   })
 
