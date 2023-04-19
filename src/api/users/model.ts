@@ -14,11 +14,12 @@ const UsersSchema = new Schema({
     default: "https://static.thenounproject.com/png/5034901-200.png",
   },
   refreshToken: { type: String },
+  googleID: { type: String },
 });
 
 UsersSchema.pre("save", async function () {
   const newUser = this;
-  if (newUser.isModified("password")) {
+  if (newUser.password && newUser.isModified("password")) {
     const password = newUser.password;
     const hashedPW = await bcrypt.hash(password, 11);
     newUser.password = hashedPW;

@@ -1,9 +1,9 @@
 import express from "express";
 import { Server, Socket } from "socket.io";
 import { createServer } from "http";
-import cors from "cors";
-import {  newConnectionHandler } from "./socket/index";
 // import {  authMiddleware } from "./socket/index";
+import cors, { CorsOptions } from "cors";
+import { newConnectionHandler } from "./socket/index";
 import {
   badRequestHandler,
   forbiddenHandler,
@@ -19,6 +19,9 @@ import jwt from "jsonwebtoken";
 import { JWTTokenAuth } from "./lib/auth/jwt";
 import messageModel from "./api/messages/model";
 import messageRouter from "./api/messages";
+import passport from "passport";
+import googleStrategy from "./lib/auth/googleOauth";
+import createHttpError from "http-errors";
 
 const expressServer = express();
 
@@ -44,8 +47,24 @@ socketioServer.on("connect", newConnectionHandler);
 // })
 
 
+passport.use("google", googleStrategy);
 
-expressServer.use(cors());
+socketioServer.on("connection", newConnectionHandler);
+
+const whiteList = [process.env.FE_DEV_URL, process.env.FE_PROD_URL];
+const corsOptions: CorsOptions = {
+  origin: (currentOrigin, corsNext) => {
+    if (!currentOrigin || whiteList.includes(currentOrigin)) {
+      corsNext(null, true);
+    } else {
+      corsNext(
+        createHttpError(400, `This origin is not allowed! ${currentOrigin}`)
+      );
+    }
+  },
+};
+
+expressServer.use(cors(corsOptions));
 expressServer.use(express.json());
 
 
