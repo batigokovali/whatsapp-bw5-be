@@ -8,8 +8,8 @@ import { JWTTokenAuth } from "../lib/auth/jwt";
 let onlineUserList: User[] = [];
 
 export const newConnectionHandler = (socket: Socket) => {
-  console.log(`New userJoined their id is ${socket.id}`);
-  socket.emit("Welcome", socket.id);
+  console.log(`New user joined their id is ${socket.id}`);
+  socket.emit("welcome", { message: `${socket.id}` });
 
   socket.on("setUser", (data: { token: string }) => {
     const { token } = data;
