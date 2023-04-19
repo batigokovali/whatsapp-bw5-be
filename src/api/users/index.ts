@@ -65,7 +65,7 @@ UsersRouter.get(
   async (req, res, next) => {
     try {
       res.redirect(
-        `${process.env.FE_DEV_URL}?accessToken=${
+        `${process.env.FE_DEV_URL}/app?accessToken=${
           (req.user as googleRedirectRequest).accessToken
         }`
       );
