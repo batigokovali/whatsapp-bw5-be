@@ -7,6 +7,7 @@ import { UserRequest } from "../../lib/auth/jwt";
 import { Server, Socket } from "socket.io";
 import { isObjectIdOrHexString, isValidObjectId, ObjectId } from "mongoose";
 import messageModel from "../messages/model";
+import { imageUploader } from "../../lib/cloudinary";
 
 const chatRouter=Express.Router()
 
@@ -16,7 +17,7 @@ const io = new Server();
 
 chatRouter.get("/", JWTTokenAuth, async (req, res, next) => {
     try {
-     const currentUser= await UsersModel.findById((req as UserRequest).user!._id)
+     const currentUser= (req as UserRequest).user!._id
     
       const chats = await chatModel.find({ members: currentUser }).populate(
         "members",
@@ -77,7 +78,7 @@ chatRouter.post("/", JWTTokenAuth, async (req, res, next) => {
   })
 
 
-  chatRouter.post("/:id", JWTTokenAuth, async (req, res, next)=>{
+  chatRouter.post("/:id",imageUploader, JWTTokenAuth, async (req, res, next)=>{
     try {
       const sender= (req as UserRequest).user!._id
             const chatId = req.params.id;
@@ -89,7 +90,8 @@ chatRouter.post("/", JWTTokenAuth, async (req, res, next) => {
        const newMessage=await messageModel.create({
         sender:sender,
         content:{
-         text:req.body.message
+         text:req.body.message,
+         media:req.file?.path
         }
        })
        chat.messages.push(newMessage)

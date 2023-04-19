@@ -10,3 +10,12 @@ export const avatarUploader = multer({
     } as { folder: string },
   }),
 }).single("avatar");
+
+export const imageUploader = multer({
+  storage: new CloudinaryStorage({
+    cloudinary,
+    params: {
+      folder: "whatsapp/chats/images",
+    } as { folder: string },
+  }),
+}).single("image");
