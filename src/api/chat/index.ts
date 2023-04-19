@@ -35,7 +35,7 @@ chatRouter.get("/", JWTTokenAuth, async (req, res, next) => {
 chatRouter.post("/", JWTTokenAuth, async (req, res, next) => {
     try {
 
-      const sender= await UsersModel.findById((req as UserRequest).user!._id)
+      const sender= (req as UserRequest).user!._id
 
 
       const recipient=req.body.recipient
@@ -43,6 +43,7 @@ chatRouter.post("/", JWTTokenAuth, async (req, res, next) => {
         members:[sender,recipient]
       })
       if(exists){
+        console.log((req as UserRequest).user!._id)
         res.status(200).send(exists)
       }else{
        const newChat=await chatModel.create({
@@ -60,7 +61,7 @@ chatRouter.post("/", JWTTokenAuth, async (req, res, next) => {
   chatRouter.get("/:id", JWTTokenAuth, async (req, res, next) => {
     try {
       const chatId = req.params.id;
-  
+      
       const chat = await chatModel.findOne({ _id: chatId }).populate(
         "members",
         "name email avatar"
@@ -78,9 +79,8 @@ chatRouter.post("/", JWTTokenAuth, async (req, res, next) => {
 
   chatRouter.post("/:id", JWTTokenAuth, async (req, res, next)=>{
     try {
-      const sender= await UsersModel.findById((req as UserRequest).user!._id)
-
-      const chatId = req.params.id;
+      const sender= (req as UserRequest).user!._id
+            const chatId = req.params.id;
       const chat = await chatModel.findById(chatId)
       
       if(!chat){
@@ -91,9 +91,9 @@ chatRouter.post("/", JWTTokenAuth, async (req, res, next) => {
         content:{
          text:req.body.message
         }
-
        })
-       
+       chat.messages.push(newMessage)
+       chat.save()
        res.send(chat)
        console.log(newMessage)
       }
