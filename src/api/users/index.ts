@@ -91,7 +91,9 @@ UsersRouter.delete("/session", JWTTokenAuth, async (req, res, next) => {
 // Get all the users
 UsersRouter.get("/", JWTTokenAuth, async (req, res, next) => {
   try {
-    const users = await UsersModel.find();
+    const users = await UsersModel.find({
+      _id: { $ne: (req as UserRequest).user!._id },
+    });
     res.send(users);
   } catch (error) {
     next(error);
