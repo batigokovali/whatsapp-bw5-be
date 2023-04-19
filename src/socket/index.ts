@@ -1,20 +1,12 @@
 import { Socket } from "socket.io";
-import { IncomingMessage } from "http";
-
 import { User } from "../types";
-import socketioJwt from 'socketio-jwt';
+
 import jwt from "jsonwebtoken"
-import { JWTTokenAuth } from "../lib/auth/jwt";
+
 
 
 let onlineUserList: User[] = [];
 
-
-//  export const authMiddleware = socketioJwt.authorize({
-//   secret: process.env.JWT_SECRET as string, 
-//   handshake: true,
-//   decodedPropertyName: "accessToken", 
-// })
 
 export const newConnectionHandler = (socket: Socket) => {
   
@@ -22,20 +14,20 @@ export const newConnectionHandler = (socket: Socket) => {
   socket.emit("Welcome", socket.id);
 
 
-  // const verifyJwt = (token: string): Promise<any> => {
-  //   return new Promise((resolve, reject) => {
-  //     jwt.verify(token, process.env.JWT_SECRET as string, (err, decoded) => { 
-  //       if (err) {
-  //         reject(err);
-  //       } else {
-  //         resolve(decoded);
-  //       }
-  //     });
-  //   });
-  // };
-
-
-
+  socket.on("setUser", (data: { token: string }) => {
+    const { token } = data;
+    console.log('Received token:', token);
+    const secret = process.env.JWT_SECRET as string;
+   
+    jwt.verify(token, secret, (err, decoded) => {
+      if (err) {
+        console.log('Token verification failed:', err);
+      } else {
+        console.log('Token verification successful:', decoded);
+      }
+    });
+  });
+  
   socket.on("outgoing-msg", ({ recipients, message }) => {
     if (Array.isArray(recipients)) {
         recipients.forEach((recipient: Socket) => {
@@ -51,9 +43,6 @@ export const newConnectionHandler = (socket: Socket) => {
         });
     }
 })
-
- 
-
 
   socket.on("disconnect", () => {
     // onlineUserList=onlineUserList.filter(a=>a.socketId!==socket.id)
