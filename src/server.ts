@@ -4,7 +4,6 @@ import { createServer } from "http";
 // import {  authMiddleware } from "./socket/index";
 import cors, { CorsOptions } from "cors";
 import { newConnectionHandler } from "./socket/index";
-import { authMiddleware } from "./socket/index";
 import {
   badRequestHandler,
   forbiddenHandler,
