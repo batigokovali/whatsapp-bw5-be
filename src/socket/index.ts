@@ -3,13 +3,13 @@ import { User } from "../types";
 import jwt, { decode } from "jsonwebtoken"
 import chatModel from "../api/chat/model";
 import mongoose from "mongoose";
-
+import { Message } from "../types";
 // import jwt from "jsonwebtoken";
 
 
 let onlineUserList:any = [];
 let newRoom:string
-
+let displayedMessages=[]
 export const newConnectionHandler = (socket: Socket) => {
 
   console.log(`New userJoined their id is ${socket.id}`);
@@ -57,13 +57,12 @@ socket.on("outgoing-msg", async ({ room, message }: { room: string, message: any
   console.log(chat)
 })
 
-socket.on("incoming-msg", async ({ room }: { room: string}) => {
-  const chatRoomId = new mongoose.Types.ObjectId(room);
-  
-  if (chatRoomId) {
-   await chatModel.findById(chatRoomId)
-  } 
-})
+// socket.on("incoming-msg",async({room,message}:{ room: string, message: any })=>{
+//   const chatRoomId = new mongoose.Types.ObjectId(room)
+//   const chat=await chatModel.findById(String(chatRoomId))
+
+// })
+
 
   socket.on("disconnect", () => {
     onlineUserList=onlineUserList.filter((a:any)=>a.socketId!==socket.id)
