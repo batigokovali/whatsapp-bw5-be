@@ -59,9 +59,8 @@ export const newConnectionHandler = (socket: Socket) => {
         { $push: { messages: message } },
         { new: true, runValidators: true }
       );
-      socket.emit("incoming-msg", String(chatRoomId));
-      const chat = await chatModel.findById(String(chatRoomId));
-      console.log(chat);
+      let messageout = await chatModel.findById(String(chatRoomId));
+      socket.emit("incoming-msg", messageout);
     }
   );
 
