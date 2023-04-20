@@ -1,22 +1,22 @@
 import { Socket } from "socket.io";
 import { User } from "../types";
 import jwt, { decode } from "jsonwebtoken"
+import chatModel from "../api/chat/model";
+import mongoose from "mongoose";
 
 // import jwt from "jsonwebtoken";
 
 
 let onlineUserList:any = [];
-
+let newRoom:string
 
 export const newConnectionHandler = (socket: Socket) => {
-  
+
   console.log(`New userJoined their id is ${socket.id}`);
   socket.emit("Welcome", socket.id);
-console.log(onlineUserList)
 
   socket.on("setUser", (data: { token: string }) => {
     const { token } = data;
-    // console.log('Received token:', token);
     const secret = process.env.JWT_SECRET as string;
    
     jwt.verify(token, secret, (err, decoded:any) => {
@@ -30,30 +30,47 @@ console.log(onlineUserList)
       }
     });
   });
+  socket.on("join-room", room => 
+  {
+    console.log(room)
+    newRoom=room
+    console.log(newRoom)
+    socket.join(room)
+}
+)
+
+socket.on("outgoing-msg", async ({ room, message }: { room: string, message: any }) => {
+  console.log(room)
+  const chatRoomId = new mongoose.Types.ObjectId(room);
+  socket.to(String(chatRoomId)).emit(message, {
+    room: room,
+    message: {
+      sender: String,
+      content: {
+        text: String
+      }
+    },
+  });
+  console.log(message);
+  await chatModel.findByIdAndUpdate(String(chatRoomId), {$push: {messages: message}}, { new: true, runValidators: true });
+  const chat = await chatModel.findById(String(chatRoomId))
+  console.log(chat)
+})
+
+socket.on("incoming-msg", async ({ room }: { room: string}) => {
+  const chatRoomId = new mongoose.Types.ObjectId(room);
   
-  socket.on("outgoing-msg", ({ recipients, message }) => {
-    if (Array.isArray(recipients)) {
-      recipients.forEach((recipient: Socket) => {
-        let newRecipients = recipients.filter(
-          (r: Socket) => r.id !== recipient.id
-        );
-        newRecipients.push(socket.id);
-        console.log(message, recipients);
-        socket.to(recipient.id).emit("incoming-msg", {
-          recipients: newRecipients,
-          sender: socket.id,
-          message: message,
-        });
-        console.log(message);
-      });
-    }
+  if (chatRoomId) {
+   await chatModel.findById(chatRoomId)
+  } 
 })
 
   socket.on("disconnect", () => {
     onlineUserList=onlineUserList.filter((a:any)=>a.socketId!==socket.id)
     //  onlineUserList=onlineUserList.filter((a)=>a.email!==)
     socket.broadcast.emit("updateOnlineUsersList", onlineUserList);
-
+   console.log(`User with socketId of ${socket.id} disconnected`)
     console.log(onlineUserList);
+
   });
 };
