@@ -9,7 +9,7 @@ import { Message } from "../types";
 
 let onlineUserList:any = [];
 let newRoom:string
-let displayedMessages=[]
+let displayedMessages:any=[]
 export const newConnectionHandler = (socket: Socket) => {
 
   console.log(`New userJoined their id is ${socket.id}`);
@@ -53,15 +53,17 @@ socket.on("outgoing-msg", async ({ room, message }: { room: string, message: any
   });
   console.log(message);
   await chatModel.findByIdAndUpdate(String(chatRoomId), {$push: {messages: message}}, { new: true, runValidators: true });
+  socket.emit("incoming-msg",String(chatRoomId))
   const chat = await chatModel.findById(String(chatRoomId))
   console.log(chat)
 })
 
-// socket.on("incoming-msg",async({room,message}:{ room: string, message: any })=>{
-//   const chatRoomId = new mongoose.Types.ObjectId(room)
-//   const chat=await chatModel.findById(String(chatRoomId))
-
-// })
+socket.on("incoming-msg",async({room}:{ room: string})=>{
+  const chatRoomId = new mongoose.Types.ObjectId(room)
+  const chat=await chatModel.findById(String(chatRoomId))
+  displayedMessages.push(chat?.messages)
+  console.log(displayedMessages)
+})
 
 
   socket.on("disconnect", () => {
