@@ -36,7 +36,7 @@ chatRouter.post("/", JWTTokenAuth, async (req, res, next) => {
 
     const recipient = req.body.recipient;
     const exists = await chatModel.findOne({
-      members: [sender, recipient],
+      members: { $in: [sender, recipient] },
     });
     if (exists) {
       console.log((req as UserRequest).user!._id);
