@@ -8,11 +8,8 @@ import { Message } from "../types";
 
 let onlineUserList: any = [];
 let newRoom: string;
-let displayedMessages = [];
-
-let onlineUserList: any = [];
-let newRoom: string;
 let displayedMessages: any = [];
+
 export const newConnectionHandler = (socket: Socket) => {
   console.log(`New userJoined their id is ${socket.id}`);
   socket.emit("Welcome", socket.id);
