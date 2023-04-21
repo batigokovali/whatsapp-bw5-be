@@ -65,10 +65,11 @@ export const newConnectionHandler = (socket: Socket) => {
   );
 
   socket.on("incoming-msg", async ({ room }: { room: string }) => {
+
     const chatRoomId = new mongoose.Types.ObjectId(room);
     const chat = await chatModel.findById(String(chatRoomId));
     displayedMessages.push(chat?.messages);
-    console.log(displayedMessages);
+    socket.emit(displayedMessages)
   });
 
   socket.on("disconnect", () => {
