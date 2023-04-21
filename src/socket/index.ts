@@ -11,8 +11,8 @@ let newRoom: string;
 let displayedMessages: any = [];
 
 export const newConnectionHandler = (socket: Socket) => {
-  console.log(`New userJoined their id is ${socket.id}`);
-  socket.emit("Welcome", socket.id);
+  console.log(`New user joined, their id is: ${socket.id}`);
+  socket.emit("welcome", socket.id);
 
   socket.on("setUser", (data: { token: string }) => {
     const { token } = data;
